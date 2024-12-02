@@ -1,1 +1,17 @@
-dcsc/
+# Ignore Python virtual environment
+/dcsc/
+
+# Ignore frontend build and dependencies
+code/frontend/node_modules/
+code/frontend/.pnp/
+code/frontend/build/
+code/frontend/coverage/
+
+# Ignore frontend logs
+code/frontend/npm-debug.log*
+code/frontend/yarn-debug.log*
+code/frontend/yarn-error.log*
+
+# Miscellaneous
+.DS_Store
+.env

@@ -43,14 +43,12 @@ jwt==1.3.1
 kiwisolver==1.4.7
 MarkupSafe==3.0.2
 matplotlib==3.9.2
-numpy==2.0.2
-openai==1.55.0
+numpy
 opentelemetry-api==1.28.2
 opentelemetry-sdk==1.28.2
 opentelemetry-semantic-conventions==0.49b2
 packaging==24.2
-pandas==1.5.3
-pandasai==2.4.0
+pandas
 pillow==10.4.0
 proto-plus==1.25.0
 protobuf==5.28.3
