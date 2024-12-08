@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://127.0.0.1:5000', // Replace with your backend URL
+  baseURL: 'http://34.19.22.89:5000', // Backend VM's public IP
   withCredentials: true,
 });
 

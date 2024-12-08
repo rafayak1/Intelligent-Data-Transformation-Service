@@ -14,7 +14,8 @@ import uuid
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+# Replace with your frontend VM's public IP
+CORS(app, resources={r"/*": {"origins": "http://34.145.69.213:3000"}}, supports_credentials=True)
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:
@@ -451,4 +452,4 @@ def check_dataset():
         return jsonify({"message": f"Error: {str(e)}"}), 500
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)  # Allow external access
