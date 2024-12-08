@@ -15,7 +15,7 @@ import uuid
 # Initialize Flask app
 app = Flask(__name__)
 # Replace with your frontend VM's public IP
-CORS(app, resources={r"/*": {"origins": "http://34.145.69.213:3000"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://35.247.34.105:3000"}}, supports_credentials=True)
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:
