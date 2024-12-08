@@ -120,6 +120,8 @@ def login():
             token = jwt.encode(
                 {"user_id": user_doc[0].id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
                 app.secret_key, algorithm="HS256")
+            # Decode the token to string if required
+            token = token.decode('utf-8') if isinstance(token, bytes) else token
             print(token)
             return jsonify({"message": "Login successful", "token": token}), 200
     return jsonify({"message": "Invalid credentials"}), 401
