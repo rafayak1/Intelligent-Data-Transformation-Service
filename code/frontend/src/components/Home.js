@@ -14,6 +14,7 @@ import {
     InputLabel,
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
+import Footer from './Footer'; // Import Footer
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -25,7 +26,6 @@ const Home = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Check if the user already has an uploaded dataset
         const checkDatasetStatus = async () => {
             try {
                 const response = await axios.get('/dataset-status', {
@@ -34,7 +34,7 @@ const Home = () => {
                 const { datasetExists } = response.data;
 
                 setDatasetExists(datasetExists);
-                setIsFirstLogin(!datasetExists); // First login if no dataset exists
+                setIsFirstLogin(!datasetExists);
             } catch (error) {
                 console.error('Error checking dataset status:', error);
                 toast.error('Failed to check dataset status.');
@@ -82,16 +82,15 @@ const Home = () => {
     };
 
     const handleContinueToChat = () => {
-        navigate('/chat'); // Redirect to chat page with the existing dataset
+        navigate('/chat');
     };
 
     return (
         <>
-            {/* Navigation Bar */}
             <AppBar position="sticky" sx={{ mb: 4, bgcolor: '#d32f2f', boxShadow: 2 }}>
                 <Toolbar>
                     <Typography variant="h6" sx={{ flexGrow: 1, color: '#fff' }}>
-                        MyApp
+                        Intelligent Data Transformation Service
                     </Typography>
                     <Button color="inherit" onClick={() => navigate('/home')} sx={{ textTransform: 'none' }}>
                         Home
@@ -102,14 +101,13 @@ const Home = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Main Content */}
             <Container
                 sx={{
-                    height: 'calc(100vh - 64px)', // Subtract navbar height
+                    height: 'calc(100vh - 64px - 40px)', // Subtract navbar and footer height
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: '#ffebc5', // Light yellow background
+                    backgroundColor: '#ffebc5',
                 }}
             >
                 <Paper
@@ -120,7 +118,7 @@ const Home = () => {
                         width: '100%',
                         maxWidth: 500,
                         textAlign: 'center',
-                        backgroundColor: '#fff3e0', // Light orange for the paper
+                        backgroundColor: '#fff3e0',
                         boxShadow: 3,
                     }}
                 >
@@ -155,7 +153,7 @@ const Home = () => {
                                     bgcolor: '#d32f2f',
                                     '&:hover': { bgcolor: '#b71c1c' },
                                 }}
-                                onClick={() => setIsFirstLogin(true)} // Show upload form
+                                onClick={() => setIsFirstLogin(true)}
                             >
                                 Replace Dataset
                             </Button>
@@ -173,7 +171,7 @@ const Home = () => {
                                         backgroundColor: '#fff',
                                         borderRadius: 1,
                                         '& input': {
-                                            color: '#000', // Adjust text color for file input
+                                            color: '#000',
                                         },
                                     }}
                                 />
@@ -213,7 +211,7 @@ const Home = () => {
                                     borderRadius: 2,
                                     boxShadow: 3,
                                     '&:hover': {
-                                        backgroundColor: '#b71c1c', // Darker red for hover
+                                        backgroundColor: '#b71c1c',
                                         boxShadow: 5,
                                     },
                                 }}
@@ -224,6 +222,8 @@ const Home = () => {
                     )}
                 </Paper>
             </Container>
+
+            <Footer />
         </>
     );
 };

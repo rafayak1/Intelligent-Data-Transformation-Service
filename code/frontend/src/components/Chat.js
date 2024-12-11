@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
 import Navbar from './Navbar'; // Import the Navbar component
-import { toast } from 'react-toastify';
+import Footer from './Footer'; // Import the Footer component
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -89,13 +89,11 @@ Supported Commands:
 
     return (
         <>
-            {/* Include the Navbar */}
             <Navbar />
 
-            {/* Main Chat Interface */}
             <Box
                 sx={{
-                    height: 'calc(100vh - 64px)', // Adjust height to account for navbar
+                    height: 'calc(100vh - 64px - 40px)', // Adjust height for navbar and footer
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -142,7 +140,7 @@ Supported Commands:
                                             borderRadius: '15px',
                                             backgroundColor: message.sender === 'user' ? '#FF7043' : '#F57C00',
                                             color: message.sender === 'user' ? '#fff' : '#000',
-                                            whiteSpace: 'pre-wrap', // Preserve line breaks in message text
+                                            whiteSpace: 'pre-wrap',
                                         }}
                                     >
                                         {message.text}
@@ -165,7 +163,7 @@ Supported Commands:
                                     </Paper>
                                 </ListItem>
                             ))}
-                            <div ref={chatEndRef} /> {/* Marker to scroll to */}
+                            <div ref={chatEndRef} />
                         </List>
                     </Box>
                     <Box
@@ -206,6 +204,8 @@ Supported Commands:
                     </Box>
                 </Paper>
             </Box>
+
+            <Footer />
         </>
     );
 };
