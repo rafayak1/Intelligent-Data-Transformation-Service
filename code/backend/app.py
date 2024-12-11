@@ -11,6 +11,7 @@ import datetime
 from functools import wraps
 from flask_cors import CORS
 import uuid
+import bcrypt  
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -86,18 +87,30 @@ def signup():
     data = request.json
     name, email, password = data.get('name'), data.get('email'), data.get('password')
     users_ref = firestore_client.collection('users')
-    if users_ref.where('email', '==', email).get():
-        return jsonify({"message": "User already exists"}), 400
-    sanitized_bucket_name = sanitize_bucket_name(f"{name}-bucket")
+
     # Check if user already exists
-    users_ref = firestore_client.collection('users')
     existing_user = users_ref.where('email', '==', email).get()
     if existing_user:
         return jsonify({"message": "User already exists"}), 400
+
+    # Hash the password using bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    # Generate bucket name
+    sanitized_bucket_name = sanitize_bucket_name(f"{name}-bucket")
     
+    # Create user document in Firestore
     user_doc = users_ref.document()
     user_id = user_doc.id
-    user_doc.set({'name': name, 'email': email, 'password': password, 'bucket': sanitized_bucket_name, 'id': user_id})
+    user_doc.set({
+        'name': name,
+        'email': email,
+        'password': hashed_password.decode('utf-8'),  # Store hash as a string
+        'bucket': sanitized_bucket_name,
+        'id': user_id
+    })
+
+    # Create bucket in GCP
     try:
         bucket = storage_client.create_bucket(sanitized_bucket_name)
         bucket.storage_class = "STANDARD"
@@ -106,21 +119,30 @@ def signup():
     except Exception as e:
         print(f"Error creating bucket: {e}")
         return jsonify({"message": "Failed to create bucket"}), 500
+
     return jsonify({"message": "User registered successfully", "bucket": sanitized_bucket_name}), 201
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
     email, password = data.get('email'), data.get('password')
+    
+    # Retrieve user from Firestore
     user_doc = firestore_client.collection('users').where('email', '==', email).get()
     if user_doc:
         user_data = user_doc[0].to_dict()
-        if user_data['password'] == password:
+        
+        # Compare hashed password with user-provided password
+        if bcrypt.checkpw(password.encode('utf-8'), user_data['password'].encode('utf-8')):
+            # Generate JWT token
             token = jwt.encode(
                 {"user_id": user_doc[0].id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
-                app.secret_key, algorithm="HS256")
-            print(token)
+                app.secret_key, algorithm="HS256"
+            )
             return jsonify({"message": "Login successful", "token": token}), 200
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
+
     return jsonify({"message": "Invalid credentials"}), 401
 
 # Logout route
