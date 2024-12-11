@@ -11,14 +11,17 @@ import {
     Link,
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
-import Navbar from './Navbar'; // Import the Navbar component
-import Footer from './Footer'; // Import the Footer component
+import Navbar from './Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const chatEndRef = useRef(null); // Ref to scroll to the latest message
+    const chatEndRef = useRef(null);
+    const [useUpdatedDataset, setUseUpdatedDataset] = useState(false);
+    const [awaitingResponse, setAwaitingResponse] = useState(false);
+    const navigate = useNavigate(); // To navigate between pages
 
     // Add welcome message directly in the frontend
     useEffect(() => {
@@ -36,6 +39,8 @@ Supported Commands:
   Example: columns (to list all column names)
 ● size  
   Example: size (to get the dataset dimensions)
+● change dataset  
+  Example: change dataset (to upload or replace your dataset)
         `;
         setMessages([{ sender: 'system', text: welcomeMessage }]);
     }, []);
@@ -52,7 +57,18 @@ Supported Commands:
                 ...prev,
                 { sender: 'ai', text: 'Please enter a valid command.' },
             ]);
-            setInput(''); // Clear the input box
+            setInput('');
+            return;
+        }
+
+        if (input.toLowerCase() === 'change dataset') {
+            handleChangeDataset();
+            return;
+        }
+
+        if (awaitingResponse) {
+            handleUserChoice(input.trim().toLowerCase());
+            setInput('');
             return;
         }
 
@@ -61,18 +77,23 @@ Supported Commands:
         try {
             const response = await axios.post(
                 '/transform',
-                { command: input },
+                { command: input, useUpdatedDataset },
                 { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
             );
 
-            const { message, download_url } = response.data;
+            const { message, download_url, prompt } = response.data;
 
             setMessages((prev) => [
                 ...prev,
                 { sender: 'user', text: input },
                 { sender: 'ai', text: message },
-                ...(download_url ? [{ sender: 'ai', text: `Download your transformed dataset here:`, downloadUrl: download_url }] : [])
+                ...(download_url ? [{ sender: 'ai', text: `Download your transformed dataset here:`, downloadUrl: download_url }] : []),
+                ...(prompt ? [{ sender: 'system', text: prompt }] : []),
             ]);
+
+            if (prompt) {
+                setAwaitingResponse(true);
+            }
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Failed to apply transformation';
 
@@ -83,8 +104,48 @@ Supported Commands:
             ]);
         } finally {
             setIsLoading(false);
-            setInput(''); // Clear the input box after send
+            setInput('');
         }
+    };
+
+    // Handle user's response to the prompt
+    const handleUserChoice = (choice) => {
+        if (choice === 'yes') {
+            setUseUpdatedDataset(true);
+            setMessages((prev) => [
+                ...prev,
+                { sender: 'user', text: 'yes' },
+                { sender: 'system', text: 'Using updated dataset for further transformations.' },
+            ]);
+        } else if (choice === 'no') {
+            setUseUpdatedDataset(false);
+            setMessages((prev) => [
+                ...prev,
+                { sender: 'user', text: 'no' },
+                { sender: 'system', text: 'Using original dataset for further transformations.' },
+            ]);
+        } else {
+            setMessages((prev) => [
+                ...prev,
+                { sender: 'user', text: choice },
+                { sender: 'ai', text: 'Please respond with "yes" or "no".' },
+            ]);
+            return;
+        }
+        setAwaitingResponse(false);
+    };
+
+    // Handle "change dataset" command
+    const handleChangeDataset = () => {
+        setMessages((prev) => [
+            ...prev,
+            { sender: 'user', text: 'change dataset' },
+            { sender: 'system', text: 'Redirecting to dataset upload page...' },
+        ]);
+
+        setTimeout(() => {
+            navigate('/home', { state: { replaceDataset: true } }); // Pass state to Home.js
+        }, 1000);
     };
 
     return (
@@ -93,7 +154,7 @@ Supported Commands:
 
             <Box
                 sx={{
-                    height: 'calc(100vh - 64px - 40px)', // Adjust height for navbar and footer
+                    height: 'calc(100vh - 64px)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -204,8 +265,6 @@ Supported Commands:
                     </Box>
                 </Paper>
             </Box>
-
-            <Footer />
         </>
     );
 };

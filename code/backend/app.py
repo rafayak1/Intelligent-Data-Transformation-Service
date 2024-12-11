@@ -14,8 +14,7 @@ import uuid
 
 # Initialize Flask app
 app = Flask(__name__)
-# Replace with your frontend VM's public IP
-CORS(app, resources={r"/*": {"origins": "http://34.169.139.225:3000"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:
@@ -120,8 +119,6 @@ def login():
             token = jwt.encode(
                 {"user_id": user_doc[0].id, "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
                 app.secret_key, algorithm="HS256")
-            # Decode the token to string if required
-            token = token.decode('utf-8') if isinstance(token, bytes) else token
             print(token)
             return jsonify({"message": "Login successful", "token": token}), 200
     return jsonify({"message": "Invalid credentials"}), 401
@@ -287,11 +284,6 @@ def chat_welcome():
 def transform_dataset():
     """
     Perform transformations or provide metadata about the dataset based on user commands.
-    Supported commands include:
-    - Remove column
-    - Rename column
-    - Filter rows
-    - Retrieve dataset metadata (columns, size)
     """
     try:
         # Retrieve request data
@@ -305,15 +297,39 @@ def transform_dataset():
         user_ref = firestore_client.collection('users').document(user_id)
         user_data = user_ref.get().to_dict()
         bucket_name = user_data.get('bucket')
-        dataset_name = user_data.get('dataset')
+        current_dataset = user_data.get('dataset')
         file_type = user_data.get('file_type', 'csv')
 
-        if not dataset_name:
+        if not current_dataset:
             return jsonify({"message": "No dataset found. Please upload a dataset first."}), 400
 
-        # Load dataset
+        if command.lower() == "yes":
+            # Switch to the updated dataset
+            new_dataset_name = user_data.get('updated_dataset')
+            if not new_dataset_name:
+                return jsonify({"message": "No updated dataset found. Please apply a transformation first."}), 400
+
+            # Set the updated dataset as the current dataset and delete the old one
+            try:
+                bucket = storage_client.get_bucket(bucket_name)
+                old_blob = bucket.blob(current_dataset)
+                if old_blob.exists():
+                    old_blob.delete()  # Delete old dataset
+                    print(f"Deleted old dataset: {current_dataset}")
+
+                # Update Firestore with the new dataset information
+                user_ref.update({'dataset': new_dataset_name, 'updated_dataset': None})
+                return jsonify({"message": "Using updated dataset for further transformations."}), 200
+            except Exception as e:
+                return jsonify({"message": f"Failed to switch to updated dataset: {e}"}), 500
+
+        if command.lower() == "no":
+            return jsonify({"message": "Continuing with the original dataset for transformations."}), 200
+
+        # Load the dataset
+        dataset_to_use = user_data.get('updated_dataset') if user_data.get('updated_dataset') else current_dataset
         delimiter = ',' if file_type == 'csv' else '\t'
-        df = load_dataset(bucket_name, dataset_name, delimiter=delimiter)
+        df = load_dataset(bucket_name, dataset_to_use, delimiter=delimiter)
 
         # Handle metadata commands
         if command.lower() == "columns":
@@ -328,8 +344,11 @@ def transform_dataset():
         # Apply transformations
         try:
             transformed_df = apply_predefined_transformation(df, command)
-            transformed_dataset_name = f"transformed_{dataset_name}"
+            transformed_dataset_name = f"transformed_{current_dataset}"
             save_dataset(bucket_name, transformed_dataset_name, transformed_df)
+
+            # Update Firestore with the new transformed dataset
+            user_ref.update({'updated_dataset': transformed_dataset_name})
 
             # Generate download link
             bucket = storage_client.get_bucket(bucket_name)
@@ -338,11 +357,11 @@ def transform_dataset():
 
             return jsonify({
                 "message": "Transformation applied successfully.",
-                "download_url": download_url
+                "download_url": download_url,
+                "followup_message": "Do you want to use this updated dataset for further transformations? Reply with `yes` or `no`."
             }), 200
 
         except ValueError as ve:
-            # Prepare supported commands message
             supported_commands = (
                 "Unsupported command.\n\n"
                 "Supported Commands:\n"
@@ -360,7 +379,6 @@ def transform_dataset():
             return jsonify({"message": f"{ve}\n\n{supported_commands}"}), 400
 
     except Exception as e:
-        # Log and return error response
         print(f"Error in transform_dataset: {e}")
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
@@ -441,4 +459,4 @@ def check_dataset():
         return jsonify({"message": f"Error: {str(e)}"}), 500
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Allow external access
+    app.run(debug=True)

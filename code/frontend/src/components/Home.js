@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
 import Footer from './Footer'; // Import Footer
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation for state
 import { toast } from 'react-toastify';
 
 const Home = () => {
@@ -24,6 +24,7 @@ const Home = () => {
     const [datasetExists, setDatasetExists] = useState(false); // Check if a dataset already exists
     const [isFirstLogin, setIsFirstLogin] = useState(true); // Track if user is logging in for the first time
     const navigate = useNavigate();
+    const location = useLocation(); // Access navigation state
 
     useEffect(() => {
         const checkDatasetStatus = async () => {
@@ -42,7 +43,12 @@ const Home = () => {
         };
 
         checkDatasetStatus();
-    }, []);
+
+        // Automatically set to replace dataset if redirected with state
+        if (location.state?.replaceDataset) {
+            setIsFirstLogin(true); // Enable "Replace Dataset" mode
+        }
+    }, [location]);
 
     const handleLogout = () => {
         toast.info('You have been logged out!');
