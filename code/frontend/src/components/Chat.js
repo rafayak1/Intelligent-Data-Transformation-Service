@@ -194,7 +194,7 @@
 
 // export default Chat;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     TextField,
@@ -207,11 +207,13 @@ import {
     Link,
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
+import { toast } from 'react-toastify';
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const chatEndRef = useRef(null); // Ref to scroll to the latest message
 
     // Add welcome message directly in the frontend
     useEffect(() => {
@@ -233,36 +235,42 @@ Supported Commands:
         setMessages([{ sender: 'system', text: welcomeMessage }]);
     }, []);
 
+    // Scroll to the latest message
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    // Handle sending user input
     const handleSendMessage = async () => {
         if (!input.trim()) {
             setMessages((prev) => [
                 ...prev,
                 { sender: 'ai', text: 'Please enter a valid command.' },
             ]);
+            setInput(''); // Clear the input box
             return;
         }
-    
+
         setIsLoading(true);
-    
+
         try {
             const response = await axios.post(
                 '/transform',
                 { command: input },
                 { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
             );
-    
+
             const { message, download_url } = response.data;
-    
+
             setMessages((prev) => [
                 ...prev,
                 { sender: 'user', text: input },
                 { sender: 'ai', text: message },
                 ...(download_url ? [{ sender: 'ai', text: `Download your transformed dataset here:`, downloadUrl: download_url }] : [])
             ]);
-            setInput(''); // Clear input box after sending the message
         } catch (error) {
             const errorMessage = error.response?.data?.message || 'Failed to apply transformation';
-    
+
             // Check if the error message already exists for the current user input
             setMessages((prev) => {
                 const userMessages = prev.filter((msg) => msg.sender === 'user' && msg.text === input);
@@ -279,6 +287,7 @@ Supported Commands:
             });
         } finally {
             setIsLoading(false);
+            setInput(''); // Clear the input box after send
         }
     };
 
@@ -355,6 +364,7 @@ Supported Commands:
                                 </Paper>
                             </ListItem>
                         ))}
+                        <div ref={chatEndRef} /> {/* Marker to scroll to */}
                     </List>
                 </Box>
                 <Box
