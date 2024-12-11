@@ -369,20 +369,7 @@ def apply_predefined_transformation(df, command):
     """
     Apply supported transformations to the dataframe.
     """
-    supported_commands = """
-        Unsupported command.  
-        Supported Commands:  
-        1. **remove column <column_name>**  
-        Example: `remove column Age`  
-        2. **rename column <old_name> to <new_name>**  
-        Example: `rename column Age to Years`  
-        3. **filter rows where <condition>**  
-        Example: `filter rows where Age > 25`  
-        4. **columns**  
-        Example: `columns` (to list all column names)  
-        5. **size**  
-        Example: `size` (to get the dataset dimensions)
-                """
+    supported_commands = ""
     if command.startswith("remove column"):
         column = command.split("remove column")[-1].strip()
         if column in df.columns:
