@@ -226,16 +226,16 @@ def dataset_status():
         user_ref = firestore_client.collection('users').document(request.user_id)
         user_data = user_ref.get().to_dict()
 
-        # Check if the user has a dataset
-        dataset_name = user_data.get('dataset')
-        if not dataset_name:
-            return jsonify({"datasetExists": False}), 200
+        if not user_data:
+            return jsonify({"datasetExists": False, "name": None}), 200
 
-        return jsonify({"datasetExists": True}), 200
-
+        return jsonify({
+            "datasetExists": bool(user_data.get('dataset')),
+            "name": user_data.get('name'),  # Include the user's name
+        }), 200
     except Exception as e:
         print(f"Error in dataset_status: {e}")
-        return jsonify({"message": "Failed to check dataset status."}), 500
+        return jsonify({"message": f"Failed to check dataset status."}), 500
 
 def load_dataset(bucket_name, dataset_name, delimiter=','):
     bucket = storage_client.bucket(bucket_name)

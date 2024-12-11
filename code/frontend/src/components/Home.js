@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import axios from '../utils/axiosConfig';
 import Footer from './Footer'; // Import Footer
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation for state
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const Home = () => {
@@ -23,8 +23,8 @@ const Home = () => {
     const [fileType, setFileType] = useState('csv'); // Default file type
     const [datasetExists, setDatasetExists] = useState(false); // Check if a dataset already exists
     const [isFirstLogin, setIsFirstLogin] = useState(true); // Track if user is logging in for the first time
+    const [name, setName] = useState(''); // User's name
     const navigate = useNavigate();
-    const location = useLocation(); // Access navigation state
 
     useEffect(() => {
         const checkDatasetStatus = async () => {
@@ -32,10 +32,11 @@ const Home = () => {
                 const response = await axios.get('/dataset-status', {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 });
-                const { datasetExists } = response.data;
+                const { datasetExists, name } = response.data;
 
                 setDatasetExists(datasetExists);
                 setIsFirstLogin(!datasetExists);
+                setName(name); // Set the name from the response
             } catch (error) {
                 console.error('Error checking dataset status:', error);
                 toast.error('Failed to check dataset status.');
@@ -43,12 +44,7 @@ const Home = () => {
         };
 
         checkDatasetStatus();
-
-        // Automatically set to replace dataset if redirected with state
-        if (location.state?.replaceDataset) {
-            setIsFirstLogin(true); // Enable "Replace Dataset" mode
-        }
-    }, [location]);
+    }, []);
 
     const handleLogout = () => {
         toast.info('You have been logged out!');
@@ -111,11 +107,15 @@ const Home = () => {
                 sx={{
                     height: 'calc(100vh - 64px - 40px)', // Subtract navbar and footer height
                     display: 'flex',
+                    flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: '#ffebc5',
                 }}
             >
+                <Typography variant="h4" gutterBottom sx={{ color: '#d32f2f', fontWeight: '600' }}>
+                    Welcome {name}!
+                </Typography>
                 <Paper
                     elevation={6}
                     sx={{
