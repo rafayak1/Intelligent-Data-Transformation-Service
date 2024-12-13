@@ -15,7 +15,7 @@ import bcrypt
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "http://34.82.213.228:3000"}}, supports_credentials=True)
 load_dotenv()
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:
