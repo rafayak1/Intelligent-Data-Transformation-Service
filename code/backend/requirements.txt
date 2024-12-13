@@ -77,3 +77,4 @@ wrapt==1.17.0
 zipp==3.21.0
 flask_cors
 bcrypt
+Flask-Testing
