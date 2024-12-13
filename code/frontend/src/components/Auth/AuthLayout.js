@@ -5,7 +5,7 @@ import { Box, Grid, Typography } from '@mui/material';
 const AuthLayout = ({ children }) => {
   return (
     <Grid container sx={{ height: '100vh' }}>
-      {/* Left Side (Image or Branding) */}
+      {}
       <Grid
         item
         xs={12}
@@ -36,7 +36,6 @@ const AuthLayout = ({ children }) => {
           }}
         >
           <Typography variant="h4" component="h1" gutterBottom>
-            Welcome to Your App
           </Typography>
           {children}
         </Box>

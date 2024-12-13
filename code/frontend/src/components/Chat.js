@@ -26,7 +26,7 @@ const Chat = () => {
     // Add welcome message directly in the frontend
     useEffect(() => {
         const welcomeMessage = `
-Welcome to Intelligent Service! Upload your dataset and perform transformations effortlessly.
+Welcome to Intelligent Data Transformation Service! Send me commands to perform transformations effortlessly.
 
 Supported Commands:
 ● remove column <column_name>  

@@ -35,8 +35,8 @@ firestore_client = firestore.Client()
 storage_client = storage.Client()
 
 def sanitize_bucket_name(name):
-    unique_id = str(uuid.uuid4())[:8]  # Generate a short unique ID
-    sanitized_name = re.sub(r'[^a-z0-9-]', '-', name.lower().strip('-'))[:55]  # Adjust length for ID
+    unique_id = str(uuid.uuid4())[:8]  
+    sanitized_name = re.sub(r'[^a-z0-9-]', '-', name.lower().strip('-'))[:55]
     return f"{sanitized_name}-{unique_id}"
 
 def token_required(f):

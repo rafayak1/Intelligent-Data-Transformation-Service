@@ -1,104 +1,3 @@
-// // src/components/Auth/Login.js
-// import React, { useState } from 'react';
-// import { Box, Button, TextField, Typography, Container, Link, Paper } from '@mui/material';
-// import axios from '../../utils/axiosConfig';
-// import { useNavigate } from 'react-router-dom';
-// import { toast } from 'react-toastify';
-
-// const Login = () => {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const navigate = useNavigate();
-
-//   const handleLogin = async () => {
-//     try {
-//       const response = await axios.post('/login', { email, password });
-//       const token = response.data.token;
-//       localStorage.setItem('token', token); // Store the JWT
-//       toast.success('Login successful!');
-//       navigate('/home');
-//     } catch (error) {
-//       toast.error(error.response?.data?.message || 'Login failed');
-//     }
-//   };
-
-//   return (
-//     <Container
-//       maxWidth="xs"
-//       sx={{
-//         height: '100vh',
-//         display: 'flex',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         backgroundImage: 'url("https://source.unsplash.com/random/1600x900?nature")',
-//         backgroundSize: 'cover',
-//         backgroundPosition: 'center',
-//       }}
-//     >
-//       <Paper
-//         elevation={6}
-//         sx={{
-//           padding: 4,
-//           borderRadius: 2,
-//           backgroundColor: 'rgba(255, 255, 255, 0.9)',
-//           width: '100%',
-//           maxWidth: 400,
-//         }}
-//       >
-//         <Typography variant="h4" textAlign="center" gutterBottom>
-//           Login
-//         </Typography>
-//         <Typography variant="body1" textAlign="center" gutterBottom>
-//           Access your account
-//         </Typography>
-//         <Box
-//           component="form"
-//           sx={{
-//             mt: 2,
-//             display: 'flex',
-//             flexDirection: 'column',
-//             gap: 2,
-//           }}
-//         >
-//           <TextField
-//             label="Email"
-//             type="email"
-//             fullWidth
-//             value={email}
-//             onChange={(e) => setEmail(e.target.value)}
-//           />
-//           <TextField
-//             label="Password"
-//             type="password"
-//             fullWidth
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//           />
-//           <Button
-//             variant="contained"
-//             color="primary"
-//             fullWidth
-//             size="large"
-//             onClick={handleLogin}
-//             sx={{ textTransform: 'none', fontWeight: 'bold' }}
-//           >
-//             Login
-//           </Button>
-//         </Box>
-//         <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
-//           Don’t have an account?{' '}
-//           <Link href="/signup" underline="hover">
-//             Sign up
-//           </Link>
-//         </Typography>
-//       </Paper>
-//     </Container>
-//   );
-// };
-
-// export default Login;
-
-// src/components/Auth/Login.js
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Container, Link, Paper } from '@mui/material';
 import axios from '../../utils/axiosConfig';
@@ -146,7 +45,7 @@ const Login = () => {
         }}
       >
         <Typography variant="h4" textAlign="center" gutterBottom sx={{ color: '#d32f2f', fontWeight: '600' }}>
-          Welcome to Your App
+          Welcome Back!
         </Typography>
         <Typography variant="h5" textAlign="center" gutterBottom sx={{ color: '#d32f2f', fontWeight: '400' }}>
           Login

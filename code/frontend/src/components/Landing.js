@@ -1,57 +1,3 @@
-// // src/components/Landing.js
-// import React from 'react';
-// import { Link } from 'react-router-dom';
-// import { Box, Button, Typography, Container } from '@mui/material';
-
-// const Landing = () => {
-//   return (
-//     <Container
-//       maxWidth="sm"
-//       sx={{
-//         height: '100vh',
-//         display: 'flex',
-//         flexDirection: 'column',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         textAlign: 'center',
-//         backgroundImage: 'url("https://source.unsplash.com/random/1600x900")',
-//         backgroundSize: 'cover',
-//         backgroundPosition: 'center',
-//         color: '#fff',
-//       }}
-//     >
-//       <Typography variant="h2" gutterBottom>
-//         Welcome to Your App
-//       </Typography>
-//       <Typography variant="h5" gutterBottom>
-//         Seamlessly transform your data with AI.
-//       </Typography>
-//       <Box sx={{ mt: 4 }}>
-//         <Button
-//           component={Link}
-//           to="/login"
-//           variant="contained"
-//           color="primary"
-//           sx={{ mr: 2 }}
-//         >
-//           Login
-//         </Button>
-//         <Button
-//           component={Link}
-//           to="/signup"
-//           variant="outlined"
-//           color="secondary"
-//         >
-//           Sign Up
-//         </Button>
-//       </Box>
-//     </Container>
-//   );
-// };
-
-// export default Landing;
-
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Box, Button, Typography, Container, Grid } from '@mui/material';
@@ -100,7 +46,7 @@ const Landing = () => {
             color: '#FF5722', // Warm red-orange
           }}
         >
-          Welcome to Your App
+          Welcome to Intelligent Data Transformation Service
         </Typography>
         <Typography
           variant="h5"
@@ -111,7 +57,7 @@ const Landing = () => {
             color: '#FFC107', // Warm yellow
           }}
         >
-          Seamlessly transform your data with AI.
+          Seamlessly transform your data.
         </Typography>
 
         <Box>

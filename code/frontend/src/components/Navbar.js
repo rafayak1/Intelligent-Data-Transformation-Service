@@ -15,7 +15,7 @@ const Navbar = () => {
         <AppBar position="sticky" sx={{ mb: 4, bgcolor: '#d32f2f', boxShadow: 2 }}>
             <Toolbar>
                 <Typography variant="h6" sx={{ flexGrow: 1, color: '#fff' }}>
-                Intelligent Data Transformation Service
+                    Intelligent Data Transformation Service
                 </Typography>
                 <Button color="inherit" onClick={() => navigate('/home')} sx={{ textTransform: 'none' }}>
                     Home
