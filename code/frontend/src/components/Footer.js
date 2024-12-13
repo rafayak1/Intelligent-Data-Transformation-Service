@@ -16,7 +16,7 @@ const Footer = () => {
             }}
         >
             <Typography variant="body2">
-                Created by Rafay for Datacentre Scale Computing Fall 2024
+                Created by Rafay and Minal for Datacentre Scale Computing Fall 2024
             </Typography>
         </Box>
     );
