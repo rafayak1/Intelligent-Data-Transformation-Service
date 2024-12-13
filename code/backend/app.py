@@ -35,8 +35,8 @@ firestore_client = firestore.Client()
 storage_client = storage.Client()
 
 def sanitize_bucket_name(name):
-    unique_id = str(uuid.uuid4())[:8]  
-    sanitized_name = re.sub(r'[^a-z0-9-]', '-', name.lower().strip('-'))[:55]
+    unique_id = str(uuid.uuid4())[:8]  # Generate a short unique ID
+    sanitized_name = re.sub(r'[^a-z0-9-]', '-', name.lower().strip('-'))[:55]  # Adjust length for ID
     return f"{sanitized_name}-{unique_id}"
 
 def token_required(f):
@@ -86,31 +86,36 @@ def unauthorized():
 def signup():
     data = request.json
     name, email, password = data.get('name'), data.get('email'), data.get('password')
-    users_ref = firestore_client.collection('users')
+
+    # Validate email format
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_regex, email):
+        return jsonify({"message": "Invalid email format. Please provide a valid email address."}), 400
 
     # Check if user already exists
+    users_ref = firestore_client.collection('users')
     existing_user = users_ref.where('email', '==', email).get()
     if existing_user:
         return jsonify({"message": "User already exists"}), 400
 
-    # Hash the password using bcrypt
+    # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    # Generate bucket name
+    # Create a unique bucket name
     sanitized_bucket_name = sanitize_bucket_name(f"{name}-bucket")
-    
-    # Create user document in Firestore
+
+    # Store user data in Firestore
     user_doc = users_ref.document()
     user_id = user_doc.id
     user_doc.set({
         'name': name,
         'email': email,
-        'password': hashed_password.decode('utf-8'),  # Store hash as a string
+        'password': hashed_password.decode('utf-8'),  # Store as a string
         'bucket': sanitized_bucket_name,
         'id': user_id
     })
 
-    # Create bucket in GCP
+    # Create a GCP bucket for the user
     try:
         bucket = storage_client.create_bucket(sanitized_bucket_name)
         bucket.storage_class = "STANDARD"
@@ -280,7 +285,6 @@ def chat_welcome():
     Welcome message for the chat. Includes a description and the list of supported commands.
     """
     try:
-        # Welcome message with commands
         welcome_message = (
             "Welcome to Intelligent Service! Upload your dataset and perform transformations effortlessly.\n\n"
             "Supported Commands:\n"
@@ -293,7 +297,9 @@ def chat_welcome():
             "● columns\n"
             "  Example: columns (to list all column names)\n"
             "● size\n"
-            "  Example: size (to get the dataset dimensions)"
+            "  Example: size (to get the dataset dimensions)\n"
+            "● change dataset\n"
+            "  Example: change dataset (to upload or replace your dataset)\n"
         )
         return jsonify({"message": welcome_message}), 200
     except Exception as e:
@@ -396,7 +402,9 @@ def transform_dataset():
                 "● columns\n"
                 "  Example: columns (to list all column names)\n"
                 "● size\n"
-                "  Example: size (to get the dataset dimensions)"
+                "  Example: size (to get the dataset dimensions)\n"
+                "● change dataset\n"
+            "  Example: change dataset (to upload or replace your dataset)\n"
             )
             return jsonify({"message": f"{ve}\n\n{supported_commands}"}), 400
 
